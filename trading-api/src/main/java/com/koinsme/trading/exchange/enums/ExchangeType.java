@@ -2,7 +2,8 @@ package com.koinsme.trading.exchange.enums;
 
 public enum ExchangeType {
 
-    Bitcoin("Bitcoin", true);
+    Bitcoin("Bitcoin", true),
+    Bitcoincash("Bitcoincash", true);
 
     private String label;
     private boolean isActive;

@@ -1,5 +1,6 @@
 package com.koinsme.trading.coin.model;
 
+import com.koinsme.trading.exchange.enums.ExchangeType;
 import com.koinsme.trading.exchange.model.Exchange;
 
 public class Coin {
@@ -17,5 +18,12 @@ public class Coin {
 
     public double getCoinValue () {
         return this.coinValue;
+    }
+
+    public ExchangeType getExchangeType () {
+        if (this.exchange == null) {
+            return null;
+        }
+        return this.exchange.getExchangeType();
     }
 }
