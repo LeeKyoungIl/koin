@@ -3,6 +3,7 @@ package com.koinsme.trading.wallet.model;
 import com.koinsme.trading.coin.model.Coin;
 import com.koinsme.trading.exchange.enums.ExchangeType;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class Wallet {
     private String password;
     private String walletHash;
 
-    private Map<Coin> coinMap;
+    private Map<ExchangeType, Coin> coinMap;
 
     public Wallet () {
 
@@ -31,47 +32,63 @@ public class Wallet {
         return StringUtils.isNotEmpty(this.walletHash);
     }
 
-    public void inputCoin(List<Coin> coins) {
-        if (CollectionUtils.isEmpty(coins) == true) {
+    public void inputCoin(Map<ExchangeType, Coin> coinMap) {
+        if (coinMap == null) {
             return;
         }
-        if (CollectionUtils.isEmpty(this.coins) == true) {
-            this.coins = coins;
+        if (this.coinMap == null) {
+            this.coinMap = coinMap;
         } else {
-            this.coins.addAll(coins);
+            coinMap.forEach((k, v) -> {
+                if (this.coinMap.containsKey(k) == true) {
+                    Coin inputCoin = coinMap.get(k);
+                    Coin existingCoin = this.coinMap.get(k);
+                    existingCoin.plusCoin(inputCoin);
+
+                    this.coinMap.put(k, existingCoin);
+                }
+            });
         }
     }
 
     public double getMyCoins() {
-        if (CollectionUtils.isEmpty(this.coins) == true) {
+        if (this.coinMap == null) {
             return 0.0d;
         }
 
-        return this.coins.stream()
-                .filter(c -> c.getCoinValue() > 0.0f)
+        return this.coinMap
+                .values()
+                .stream()
                 .mapToDouble(c -> c.getCoinValue())
                 .sum();
     }
 
     public double getMyCoinsByExchange(ExchangeType exchangeType) {
-        if (CollectionUtils.isEmpty(this.coins) == true) {
+        if (this.coinMap == null) {
             return 0.0d;
         }
 
-        return this.coins.stream()
-                .filter(c -> c.getCoinValue() > 0.0f)
+        return this.coinMap
+                .values()
+                .stream()
                 .filter(c -> c.getExchangeType() == exchangeType)
                 .mapToDouble(c -> c.getCoinValue())
                 .sum();
     }
 
-    public double exportCoin(ExchangeType exchangeType, double coinValue) {
-        if (CollectionUtils.isEmpty(this.coins) == true) {
-            return 0.0d;
+    public boolean exportCoin (Coin exportCoin) {
+        if (this.coinMap == null) {
+            return false;
         }
 
-        if () {
+        Coin coin = this.coinMap.get(exportCoin.getExchangeType());
 
+        if (coin == null) {
+            return false;
         }
+        if (coin.getCoinValue() >= exportCoin.getCoinValue()) {
+            return coin.minusCoin(exportCoin);
+        }
+        return false;
     }
 }

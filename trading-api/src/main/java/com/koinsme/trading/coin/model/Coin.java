@@ -5,11 +5,11 @@ import com.koinsme.trading.exchange.model.Exchange;
 
 public class Coin {
 
-    private Exchange exchange;
+    private ExchangeType exchangetype;
     private double coinValue = 0.0d;
 
-    public Coin (Exchange exchange) {
-        this.exchange = exchange;
+    public Coin (ExchangeType exchangetype) {
+        this.exchangetype = exchangetype;
     }
 
     public void init(double coinValue) {
@@ -21,9 +21,22 @@ public class Coin {
     }
 
     public ExchangeType getExchangeType () {
-        if (this.exchange == null) {
+        if (this.exchangetype == null) {
             return null;
         }
-        return this.exchange.getExchangeType();
+        return this.exchangetype;
+    }
+
+    public void plusCoin (Coin coin) {
+        this.coinValue += coin.getCoinValue();
+    }
+
+    public boolean minusCoin (Coin coin) {
+        if (this.coinValue >= coin.getCoinValue()) {
+            this.coinValue -= coin.getCoinValue();
+            return true;
+        }
+
+        return false;
     }
 }

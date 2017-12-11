@@ -3,6 +3,7 @@ package com.koinsme.trading.wallet
 import com.koinsme.trading.coin.model.Coin
 import com.koinsme.trading.exchange.enums.ExchangeType
 import com.koinsme.trading.exchange.model.Exchange
+import com.koinsme.trading.util.CoinHashMap
 import com.koinsme.trading.util.WalletUtils
 import com.koinsme.trading.wallet.model.Wallet
 import spock.lang.Specification
@@ -26,12 +27,11 @@ class WalletTest extends Specification {
 
     def "set coin" () {
         setup:
-        List<Coin> myCoins = new ArrayList<>();
+        Map myCoins = new CoinHashMap();
 
         ExchangeType exchangeType = ExchangeType.valueOf("Bitcoin");
-        Exchange exchange = new Exchange(exchangeType);
         double coinValue = 1.2d;
-        Coin coin = new Coin(exchange);
+        Coin coin = new Coin(exchangeType);
         coin.init(coinValue);
 
         String email = "leekyoungil@gmail.com";
@@ -43,7 +43,7 @@ class WalletTest extends Specification {
         Wallet wallet = new Wallet();
         wallet.create(walletHash, walletPassword);
 
-        myCoins.add(coin);
+        myCoins.put(exchangeType, coin);
 
         wallet.inputCoin(myCoins);
 
@@ -53,16 +53,15 @@ class WalletTest extends Specification {
 
     def "set coins" () {
         setup:
-        List<Coin> myCoins = new ArrayList<>();
+        Map myCoins = new CoinHashMap();
 
         ExchangeType exchangeType = ExchangeType.valueOf("Bitcoin");
-        Exchange exchange = new Exchange(exchangeType);
         double coinValue = 1.2d;
-        Coin coin = new Coin(exchange);
+        Coin coin = new Coin(exchangeType);
         coin.init(coinValue);
 
         double coinValue1 = 0.2d;
-        Coin coin1 = new Coin(exchange);
+        Coin coin1 = new Coin(exchangeType);
         coin1.init(coinValue1);
 
         String email = "leekyoungil@gmail.com";
@@ -74,8 +73,8 @@ class WalletTest extends Specification {
         Wallet wallet = new Wallet();
         wallet.create(walletHash, walletPassword);
 
-        myCoins.add(coin);
-        myCoins.add(coin1);
+        myCoins.put(exchangeType, coin);
+        myCoins.put(exchangeType, coin1);
 
         wallet.inputCoin(myCoins);
 
@@ -85,17 +84,15 @@ class WalletTest extends Specification {
 
     def "set coins with list" () {
         setup:
-        List<Coin> myCoins = new ArrayList<>();
-        List<Coin> myCoins1 = new ArrayList<>();
+        Map myCoins = new CoinHashMap();
 
         ExchangeType exchangeType = ExchangeType.valueOf("Bitcoin");
-        Exchange exchange = new Exchange(exchangeType);
         double coinValue = 1.2d;
-        Coin coin = new Coin(exchange);
+        Coin coin = new Coin(exchangeType);
         coin.init(coinValue);
 
         double coinValue1 = 0.2d;
-        Coin coin1 = new Coin(exchange);
+        Coin coin1 = new Coin(exchangeType);
         coin1.init(coinValue1);
 
         String email = "leekyoungil@gmail.com";
@@ -107,11 +104,10 @@ class WalletTest extends Specification {
         Wallet wallet = new Wallet();
         wallet.create(walletHash, walletPassword);
 
-        myCoins.add(coin);
-        myCoins1.add(coin1);
+        myCoins.put(exchangeType, coin);
+        myCoins.put(exchangeType, coin1);
 
         wallet.inputCoin(myCoins);
-        wallet.inputCoin(myCoins1);
 
         then:
         wallet.getMyCoins() == 1.4d;
@@ -119,19 +115,16 @@ class WalletTest extends Specification {
 
     def "set coins by exchange" () {
         setup:
-        List<Coin> myCoins = new ArrayList<>();
-        List<Coin> myCoins1 = new ArrayList<>();
+        Map myCoins = new CoinHashMap();
 
         ExchangeType exchangeType = ExchangeType.valueOf("Bitcoin");
-        Exchange exchange = new Exchange(exchangeType);
         double coinValue = 1.2d;
-        Coin coin = new Coin(exchange);
+        Coin coin = new Coin(exchangeType);
         coin.init(coinValue);
 
         ExchangeType exchangeType1 = ExchangeType.valueOf("Bitcoincash");
-        Exchange exchange1 = new Exchange(exchangeType1);
         double coinValue1 = 0.2d;
-        Coin coin1 = new Coin(exchange1);
+        Coin coin1 = new Coin(exchangeType1);
         coin1.init(coinValue1);
 
         String email = "leekyoungil@gmail.com";
@@ -143,11 +136,10 @@ class WalletTest extends Specification {
         Wallet wallet = new Wallet();
         wallet.create(walletHash, walletPassword);
 
-        myCoins.add(coin);
-        myCoins1.add(coin1);
+        myCoins.put(exchangeType, coin);
+        myCoins.put(exchangeType1, coin1);
 
         wallet.inputCoin(myCoins);
-        wallet.inputCoin(myCoins1);
 
         then:
         wallet.getMyCoinsByExchange(exchangeType) == 1.2d;
@@ -156,19 +148,16 @@ class WalletTest extends Specification {
 
     def "export coins by exchange" () {
         setup:
-        List<Coin> myCoins = new ArrayList<>();
-        List<Coin> myCoins1 = new ArrayList<>();
+        Map myCoins = new CoinHashMap();
 
         ExchangeType exchangeType = ExchangeType.valueOf("Bitcoin");
-        Exchange exchange = new Exchange(exchangeType);
         double coinValue = 1.2d;
-        Coin coin = new Coin(exchange);
+        Coin coin = new Coin(exchangeType);
         coin.init(coinValue);
 
         ExchangeType exchangeType1 = ExchangeType.valueOf("Bitcoincash");
-        Exchange exchange1 = new Exchange(exchangeType1);
         double coinValue1 = 0.2d;
-        Coin coin1 = new Coin(exchange1);
+        Coin coin1 = new Coin(exchangeType1);
         coin1.init(coinValue1);
 
         String email = "leekyoungil@gmail.com";
@@ -177,20 +166,23 @@ class WalletTest extends Specification {
         String walletPassword = WalletUtils.generatePasswod(password);
 
         double exportCoinValue = 0.002d;
+        Coin exportCoin = new Coin(exchangeType);
+        exportCoin.init(exportCoinValue);
 
         when:
         Wallet wallet = new Wallet();
         wallet.create(walletHash, walletPassword);
 
-        myCoins.add(coin);
-        myCoins1.add(coin1);
+        myCoins.put(exchangeType, coin);
+        myCoins.put(exchangeType1, coin1);
 
         wallet.inputCoin(myCoins);
-        wallet.inputCoin(myCoins1);
 
-        wallet.exportCoin(ExchangeType.Bitcoin, exportCoinValue);
+        boolean exportResult = wallet.exportCoin(exportCoin);
 
         then:
-        wallet.getCoinstatusByExchange(ExchangeType.Bitcoin);
+        exportResult == true;
+        wallet.getMyCoinsByExchange(ExchangeType.Bitcoin) == 1.198d;
+        wallet.getMyCoinsByExchange(ExchangeType.Bitcoincash) == 0.2d;
     }
 }
